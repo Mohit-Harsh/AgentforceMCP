@@ -5,22 +5,18 @@ from agent_sdk import Agentforce
 from agent_sdk.core.auth import BasicAuth, DirectAuth, JwtBearerAuth, SalesforceLogin, ClientCredentialsAuth
 import os
 from dotenv import load_dotenv
+from fastapi import FastAPI
+
 
 load_dotenv()
 
-# Initialize FastMCP server
-mcp = FastMCP("AgentForce MCP", host='localhost', port=8000)
+# Initialize FastAPI server
 
+app = FastAPI()
 
-@mcp.tool()
-async def send_message(name: str, message: str) -> str:
-
-    """Send a message to agentforce agent
-
-    Args:
-        name: Name of the agentforce agent
-        message: message to be sent to the agent
-    """
+@app.post("/send_message")
+def send_message(name:str,message:str)->str:
+    
     try:
         
         # Initialize AgentForce client
@@ -43,13 +39,7 @@ async def send_message(name: str, message: str) -> str:
 
         print('Exception: ',e)
         return f"Unable to connect to {name} agent"
-    
-def main():
-    # Initialize and run the server
-    mcp.run(transport='streamable-http')
 
-if __name__ == "__main__":
-    main()
 
     
 

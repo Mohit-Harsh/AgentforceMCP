@@ -1,122 +1,113 @@
-# 🧩 MCP Server for Agentforce Agent Integration
-
-This repository contains an implementation of a **Model Context Protocol (MCP) Server** that enables seamless connectivity between **any MCP client** and the **Agentforce Agent**.
-
-The server leverages the **Agentforce Python SDK** to invoke and interact with the Agentforce Agent, allowing developers to integrate intelligent automation and AI-driven workflows directly into MCP-compatible environments.
+Here’s a polished, professional **GitHub README** suitable for your project:
 
 ---
 
-## 🚀 Overview
+# 🧩 Agentforce MCP Integration Server
 
-The **MCP Server for Agentforce** acts as a bridge between your MCP client and Salesforce’s Agentforce Agent.
-It provides a standardized interface for communication, authentication, and tool invocation through the MCP protocol.
+This repository provides a unified solution for integrating **Model Context Protocol (MCP)** clients and **REST API** applications with **Agentforce Agents** using the **Agentforce Python SDK**.
 
-### ✨ Key Features
+It includes two core components:
 
-* **MCP-compliant Server:** Connects effortlessly with any MCP-compatible client.
-* **Agentforce SDK Integration:** Utilizes the official Python SDK to interact with Agentforce Agents.
-* **Secure Authentication:** Uses Salesforce credentials via environment variables for safe access.
-* **Plug-and-Play Setup:** Quick installation and configuration for local development or integration testing.
+1. **MCP Server** – Enables any MCP-compatible client to communicate directly with an Agentforce Agent.
+2. **FastAPI Server** – Offers RESTful API endpoints for invoking the Agentforce Agent programmatically.
+
+Both servers are built to ensure seamless connectivity, secure authentication, and consistent performance across integration channels.
 
 ---
 
-## ⚙️ Setup & Installation
+## 📘 Overview
 
-Follow the steps below to set up and run the MCP server locally.
+The repository implements two key servers designed for different modes of communication:
 
-### 1️⃣ Clone the Repository
+* **MCP Server**
+  Enables MCP clients to connect to Agentforce Agents using the standardized Model Context Protocol. This allows real-time interaction and dynamic tool access through supported MCP clients and inspectors.
+
+* **FastAPI Server**
+  Provides RESTful access to Agentforce Agents, making it easy to integrate into existing systems or applications using simple HTTP requests.
+
+Both implementations utilize the **Agentforce Python SDK** to communicate with Salesforce and the Agentforce backend, ensuring reliability and consistency.
+
+---
+
+## ⚙️ Setup Instructions
+
+### 1. Repository Setup
+
+Clone the repository and configure the required environment variables:
 
 ```bash
 git clone https://github.com/Mohit-Harsh/AgentforceMCP.git
 cd AgentforceMCP
 ```
 
-### 2️⃣ Create a `.env` File
+Create a `.env` file in the project root directory and include the following credentials:
 
-In the project root directory, create a `.env` file with your Salesforce credentials:
-
-```bash
-UNAME=<your_salesforce_username>
-PASSWORD=<your_salesforce_password>
-SECURITY_TOKEN=<your_salesforce_security_token>
+```powershell
+UNAME=<your-salesforce-username>
+PASSWORD=<your-salesforce-password>
+SECURITY_TOKEN=<your-salesforce-security-token>
 ```
 
-> ⚠️ **Important:** Do not share your `.env` file or commit it to version control.
-> Keep your credentials secure.
+> ⚠️ **Note:** Ensure these credentials correspond to a valid Salesforce user with Agentforce access.
 
-### 3️⃣ Install Dependencies
+---
+
+### 2. Dependency Installation
+
+Install all required Python dependencies using:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-This installs all necessary dependencies including the **Agentforce Python SDK**.
+This will install all necessary libraries for both MCP and FastAPI servers, including the Agentforce Python SDK.
 
 ---
 
-## 🧠 Running the MCP Server
+## 🚀 Running the Servers
 
-### Start the MCP Inspector Server
+### 🧠 Start MCP Server
 
-To interact with and test the MCP tools, run:
+To start the MCP server (used for MCP clients and inspectors):
 
 ```bash
-npx @modelcontextprotocol/inspector
+python ./src/streamable-http/server.py
 ```
 
-This launches the **MCP Inspector Server**, which allows you to visually inspect and interact with the MCP endpoints.
+The MCP server will initialize and listen for incoming MCP client connections.
 
-### Connect to the MCP Server
+---
 
-Once the inspector server is running:
+### 🌐 Start FastAPI Server
 
-1. Open the MCP Inspector UI in your browser.
+To run the FastAPI server for REST API access:
 
-2. Navigate to **Connect → Add MCP Server**.
+```bash
+fastapi dev ./src/fastapi/server.py
+```
 
-3. Enter the host URL as:
+This launches a development instance of the FastAPI application, exposing REST endpoints that interact with Agentforce Agents.
+
+---
+
+## 🔍 Inspector Server (Optional)
+
+To test and debug the MCP server using the **MCP Inspector** tool:
+
+1. Start the Inspector server:
+
+   ```bash
+   npx @modelcontextprotocol/inspector
+   ```
+2. Open the Inspector web interface (default port: `http://localhost:5173` or as shown in the console).
+3. Connect to your running MCP server using the host URL:
 
    ```
    https://localhost:8000/mcp
    ```
-
-4. Click **Connect**.
-
-### Test the MCP Tools
-
-After connecting, navigate to the **Tools** tab in the MCP Inspector.
-Here you can trigger, inspect, and validate the available MCP tools integrated with the Agentforce Agent.
+4. Navigate to the **Tools** tab to explore and test the available MCP tools.
 
 ---
 
-## 🧰 Tech Stack
 
-| Component                        | Description                                                    |
-| -------------------------------- | -------------------------------------------------------------- |
-| **Python 3.9+**                  | Core language for MCP server implementation                    |
-| **Agentforce Python SDK**        | Used for invoking Agentforce Agents                            |
-| **Model Context Protocol (MCP)** | Enables standardized communication between clients and servers |
-| **Node.js / npx**                | Used to launch the MCP Inspector                               |
-| **dotenv**                       | Manages environment variables securely                         |
-
----
-
-## 🤝 Contributing
-
-Contributions are welcome!
-If you’d like to improve or extend the MCP Server:
-
-1. Fork the repository.
-2. Create a new branch (`feature/your-feature-name`).
-3. Submit a Pull Request with a clear description.
-
----
-
-## 🧩 References
-
-* [Model Context Protocol (MCP)](https://modelcontextprotocol.io)
-* [Salesforce Agentforce](https://www.salesforce.com/)
-* [Agentforce Python SDK](https://pypi.org/project/agentforce-sdk/)
-
----
 
