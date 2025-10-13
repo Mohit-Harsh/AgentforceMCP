@@ -1,5 +1,6 @@
 from typing import Any
 import httpx
+from pydantic import BaseModel
 from mcp.server.fastmcp import FastMCP
 from agent_sdk import Agentforce
 from agent_sdk.core.auth import BasicAuth, DirectAuth, JwtBearerAuth, SalesforceLogin, ClientCredentialsAuth
@@ -14,8 +15,16 @@ load_dotenv()
 
 app = FastAPI()
 
+class Request(BaseModel):
+    name: str = None
+    message: str
+
+class Response(BaseModel):
+    message: str
+    session_id: str=None
+
 @app.post("/send_message")
-def send_message(name:str,message:str)->str:
+def send_message(req:Request)->Response:
     
     try:
         
@@ -29,16 +38,16 @@ def send_message(name:str,message:str)->str:
         agent_force = Agentforce(auth=auth)
 
         response = agent_force.send_message(
-            agent_name=name,
-            user_message=message
+            agent_name="Copilot_for_Salesforce",
+            user_message=req.message
         )
 
-        return response['agent_response']
+        return Response(message=response['agent_response'],session_id=response['session_id'])
     
     except Exception as e:
 
         print('Exception: ',e)
-        return f"Unable to connect to {name} agent"
+        return Response(message="Unable to connect to the agent",session_id=None)
 
 
     
