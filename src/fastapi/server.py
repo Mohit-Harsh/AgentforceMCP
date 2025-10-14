@@ -1,9 +1,7 @@
 from typing import Any
-import httpx
 from pydantic import BaseModel
-from mcp.server.fastmcp import FastMCP
 from agent_sdk import Agentforce
-from agent_sdk.core.auth import BasicAuth, DirectAuth, JwtBearerAuth, SalesforceLogin, ClientCredentialsAuth
+from agent_sdk.core.auth import BasicAuth
 import os
 from dotenv import load_dotenv
 from fastapi import FastAPI
