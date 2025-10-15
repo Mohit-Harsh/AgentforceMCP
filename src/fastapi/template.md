@@ -1,3 +1,6 @@
+### Agentforce MCP  Template
+
+```py
 from typing import Any
 from pydantic import BaseModel
 from agent_sdk import Agentforce
@@ -14,10 +17,7 @@ load_dotenv()
 app = FastAPI()
 
 class Request(BaseModel):
-    username: str
-    password: str
-    securityToken: str
-    agentName: str
+    name: str = None
     message: str
 
 class Response(BaseModel):
@@ -31,15 +31,15 @@ def send_message(req:Request)->Response:
         
         # Initialize AgentForce client
         auth = BasicAuth(
-            username=req.username,
-            password=req.password,
-            security_token=req.securityToken
+            username=os.getenv("UNAME"),
+            password=os.getenv("PASSWORD"),
+            security_token=os.getenv("SECURITY_TOKEN")
         )
 
         agent_force = Agentforce(auth=auth)
 
         response = agent_force.send_message(
-            agent_name=req.agentName,
+            agent_name=req.name,
             user_message=req.message
         )
 
@@ -48,12 +48,8 @@ def send_message(req:Request)->Response:
     except Exception as e:
 
         print('Exception: ',e)
-        if response.status_code == 401:
-            print("Authorization Error: Invalid username or password.")
-        elif response.status_code == 403:
-            print("Access Forbidden: You don’t have permission to access this resource.")
-        return Response(message="Unable to connect to the agent")
+        return Response(message="Unable to connect to the agent",session_id=None)
 
+```
 
-    
-
+---
