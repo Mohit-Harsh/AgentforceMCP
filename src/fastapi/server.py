@@ -1,7 +1,7 @@
 from typing import Any
 from pydantic import BaseModel
 from agent_sdk import Agentforce
-from agent_sdk.core.auth import BasicAuth
+from agent_sdk.core.auth import BasicAuth,JwtBearerAuth,ClientCredentialsAuth
 import os
 from dotenv import load_dotenv
 from fastapi import FastAPI
@@ -14,9 +14,6 @@ load_dotenv()
 app = FastAPI()
 
 class Request(BaseModel):
-    username: str
-    password: str
-    securityToken: str
     agentName: str
     message: str
 
@@ -31,13 +28,13 @@ def send_message(req:Request)->Response:
         
         # Initialize AgentForce client
         auth = BasicAuth(
-            username=req.username,
-            password=req.password,
-            security_token=req.securityToken
+            username=os.getenv('UNAME'),
+            password=os.getenv('PASSWORD'),
+            security_token=os.getenv('SECURITY_TOKEN')
         )
 
         agent_force = Agentforce(auth=auth)
-
+        
         response = agent_force.send_message(
             agent_name=req.agentName,
             user_message=req.message

@@ -1,4 +1,4 @@
-agentforce
+agentforce-sdk
 fastapi[standard]
 fastapi
 httpx
