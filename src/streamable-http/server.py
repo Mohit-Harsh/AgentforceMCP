@@ -17,12 +17,11 @@ async def ping() -> str:
     return "Pong!"
 
 @mcp.tool()
-async def send_message(name: str, message: str) -> str:
+async def send_message(message: str) -> str:
 
-    """Send a message to agentforce agent
+    """Fetch Account Target details from Agentforce Agent
 
     Args:
-        name: Name of the agentforce agent
         message: message to be sent to the agent
     """
     try:
@@ -37,7 +36,7 @@ async def send_message(name: str, message: str) -> str:
         agent_force = Agentforce(auth=auth)
 
         response = agent_force.send_message(
-            agent_name=name,
+            agent_name='Copilot_for_Salesforce',
             user_message=message
         )
 
@@ -46,7 +45,7 @@ async def send_message(name: str, message: str) -> str:
     except Exception as e:
 
         print('Exception: ',e)
-        return f"Unable to connect to {name} agent"
+        return f"Unable to connect to Copilot_for_Salesforce agent"
     
 def main():
     # Initialize and run the server

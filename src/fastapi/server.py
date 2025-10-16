@@ -1,19 +1,18 @@
 from typing import Any
 from pydantic import BaseModel
 from agent_sdk import Agentforce
-from agent_sdk.core.auth import BasicAuth,JwtBearerAuth,ClientCredentialsAuth
+from agent_sdk.core.auth import BasicAuth
 import os
 from dotenv import load_dotenv
 from fastapi import FastAPI
-
+from fastapi import Request
 
 load_dotenv()
 
-# Initialize FastAPI server
-
 app = FastAPI()
 
-class Request(BaseModel):
+
+class RequestWrapper(BaseModel):
     agentName: str
     message: str
 
@@ -21,8 +20,13 @@ class Response(BaseModel):
     message: str
     session_id: str=None
 
+@app.get("/ping")
+def ping(req:Request) -> Response:
+    print('Access Token: ',req.headers.get('Authorization'))
+    return Response(message=f"Access Token: {req.headers.get('Authorization')}")
+
 @app.post("/send_message")
-def send_message(req:Request)->Response:
+def send_message(req:RequestWrapper)->Response:
     
     try:
         
@@ -34,7 +38,7 @@ def send_message(req:Request)->Response:
         )
 
         agent_force = Agentforce(auth=auth)
-        
+
         response = agent_force.send_message(
             agent_name=req.agentName,
             user_message=req.message
