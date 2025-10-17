@@ -4,7 +4,7 @@ from fastmcp import FastMCP
 from agent_sdk import Agentforce
 from agent_sdk.core.auth import BasicAuth
 from dotenv import load_dotenv
-from fastapi import FastAPI,Header
+from fastapi import FastAPI,Header,Request
 
 app = FastAPI(title="Agentforce MCP Server")
 
@@ -16,7 +16,8 @@ async def ping() -> str:
 @app.post("/send_message")
 async def send_message(message: str, username: str = Header(...),
                        password: str = Header(...),
-                       securityToken: str = Header(...)) -> str:
+                       securityToken: str = Header(...),
+                       agentName: str = Header(...)) -> str:
 
     """Send a message to Agentforce Agent
 
@@ -24,8 +25,6 @@ async def send_message(message: str, username: str = Header(...),
         message: message to be sent to the agent
     """
     try:
-
-        print('Credentials: ', username, password, securityToken)
         
         # Initialize AgentForce client
         auth = BasicAuth(
@@ -37,7 +36,7 @@ async def send_message(message: str, username: str = Header(...),
         agent_force = Agentforce(auth=auth)
 
         response = agent_force.send_message(
-            agent_name='Copilot_for_Salesforce',
+            agent_name=agentName,
             user_message=message
         )
 
