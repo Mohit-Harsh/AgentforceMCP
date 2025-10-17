@@ -1,36 +1,37 @@
 from typing import Any
 import httpx
-from mcp.server.fastmcp import FastMCP
+from fastmcp import FastMCP
 from agent_sdk import Agentforce
-from agent_sdk.core.auth import BasicAuth, DirectAuth, JwtBearerAuth, SalesforceLogin, ClientCredentialsAuth
-import os
+from agent_sdk.core.auth import BasicAuth
 from dotenv import load_dotenv
+from fastapi import FastAPI,Header
 
-load_dotenv()
+app = FastAPI(title="Agentforce MCP Server")
 
-# Initialize FastMCP server
-mcp = FastMCP("AgentForce MCP", host='localhost', port=8000)
-
-@mcp.tool()
+@app.get("/ping")
 async def ping() -> str:
     """A simple ping tool to check if the server is running"""
     return "Pong!"
 
-@mcp.tool()
-async def send_message(message: str) -> str:
+@app.post("/send_message")
+async def send_message(message: str, username: str = Header(...),
+                       password: str = Header(...),
+                       securityToken: str = Header(...)) -> str:
 
-    """Fetch Account Target details from Agentforce Agent
+    """Send a message to Agentforce Agent
 
     Args:
         message: message to be sent to the agent
     """
     try:
+
+        print('Credentials: ', username, password, securityToken)
         
         # Initialize AgentForce client
         auth = BasicAuth(
-            username=os.getenv("UNAME"),
-            password=os.getenv("PASSWORD"),
-            security_token=os.getenv("SECURITY_TOKEN")
+            username=username,
+            password=password,
+            security_token=securityToken
         )
 
         agent_force = Agentforce(auth=auth)
@@ -47,12 +48,10 @@ async def send_message(message: str) -> str:
         print('Exception: ',e)
         return f"Unable to connect to Copilot_for_Salesforce agent"
     
-def main():
-    # Initialize and run the server
-    mcp.run(transport='streamable-http')
+# Initialize FastMCP server
+mcp = FastMCP.from_fastapi(app=app,name="AgentforceMCPServer", 
+              instructions="Use this MCP server to interact with Agentforce agents.")
 
 if __name__ == "__main__":
-    main()
-
-    
+    mcp.run(transport='streamable-http')
 
