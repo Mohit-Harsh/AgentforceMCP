@@ -2,6 +2,7 @@ from typing import Any
 from fastapi import FastAPI, Header
 import requests
 import uuid
+from pydantic import BaseModel
 
 app = FastAPI()
 
@@ -10,7 +11,6 @@ def createToken(clientId: str, clientSecret: str, domainUrl: str) -> Any:
     url = f"https://{domainUrl}/services/oauth2/token"
 
     payload = {
-        'scopes': 'full',
         'grant_type': 'client_credentials',
         'client_id': clientId,
         'client_secret': clientSecret
@@ -21,6 +21,10 @@ def createToken(clientId: str, clientSecret: str, domainUrl: str) -> Any:
     }
 
     response = requests.post(url, data=payload, headers=headers)
+
+    if(response.status_code != 200):
+        print('Create Token Error: ',response.json())
+        raise Exception(f"Failed to create token: {response.text}")
 
     return response.json()
 
@@ -47,6 +51,10 @@ def createSession(agentId:str,token:str,domainUrl:str)->Any:
 
     response = requests.post(url, json=payload, headers=headers)
 
+    if(response.status_code != 200):
+        print('Create Session Error: ',response.json())
+        raise Exception(f"Failed to create session: {response.text}")
+
     return response.json()
 
 def deleteSession(session_id:str,token:str)->Any:
@@ -62,38 +70,49 @@ def deleteSession(session_id:str,token:str)->Any:
 
     return response.json()
 
+class RequestModel(BaseModel):
+    message: str
 
 @app.post("/invokeAgent")
-def invokeAgent(message:str,
+def invokeAgent(req:RequestModel,
                 clientId: str=Header(...),
                 clientSecret: str=Header(...),
                 agentId: str=Header(...),
                 domainUrl: str=Header(...))->Any:
 
-    token = createToken(clientId, clientSecret, domainUrl)['access_token']
+    try:
 
-    session = createSession(agentId, token, domainUrl)
-    
-    session_id = session['sessionId']
+        token_response = createToken(clientId, clientSecret, domainUrl)
+        
+        token = token_response['access_token']
 
-    url = f"https://api.salesforce.com/einstein/ai-agent/v1/sessions/{session_id}/messages"
+        session = createSession(agentId, token, domainUrl)
 
-    headers = {
-        "Accept": "application/json",
-        "Content-Type": "application/json",
-        "Authorization": f"Bearer {token}"
-    }
+        session_id = session['sessionId']
 
-    payload = {
-        "message": {
-            "sequenceId": 1, 
-            "type": "Text",
-            "text": message
+        url = f"https://api.salesforce.com/einstein/ai-agent/v1/sessions/{session_id}/messages"
+
+        headers = {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {token}"
         }
-    }
 
-    response = requests.post(url, json=payload, headers=headers)
+        payload = {
+            "message": {
+                "sequenceId": 1, 
+                "type": "Text",
+                "text": req.message
+            }
+        }
 
-    deleteSession(session_id, token)
+        response = requests.post(url, json=payload, headers=headers)
 
-    return response.json()["messages"]
+        deleteSession(session_id, token)
+
+        return response.json()["messages"]
+    
+    except Exception as e:
+
+        print('Error invoking agent:', e)
+        return f"Unable to connect to the agent: {str(e)}"
