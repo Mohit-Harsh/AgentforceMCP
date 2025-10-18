@@ -1,12 +1,35 @@
 from typing import Any
-import httpx
 from mcp.server.fastmcp import FastMCP
 from agent_sdk import Agentforce
-from agent_sdk.core.auth import BasicAuth, DirectAuth, JwtBearerAuth, SalesforceLogin, ClientCredentialsAuth
-import os
-from dotenv import load_dotenv
+from agent_sdk.core.auth import BasicAuth
+import argparse
 
-load_dotenv()
+# Create the argument parser
+parser = argparse.ArgumentParser(
+    description="Parse Salesforce login credentials from CLI arguments"
+)
+
+# Define the arguments
+parser.add_argument(
+    "--username",
+    type=str,
+    required=True,
+    help="Salesforce username"
+)
+
+parser.add_argument(
+    "--password",
+    type=str,
+    required=True,
+    help="Salesforce password"
+)
+
+parser.add_argument(
+    "--securityToken",
+    type=str,
+    required=True,
+    help="Salesforce security token"
+)
 
 # Initialize FastMCP server
 mcp = FastMCP("AgentForce MCP")
@@ -22,12 +45,15 @@ async def send_message(name: str, message: str) -> str:
         message: message to be sent to the agent
     """
     try:
+
+        # Parse the arguments
+        args = parser.parse_args()
         
         # Initialize AgentForce client
         auth = BasicAuth(
-            username=os.getenv("UNAME"),
-            password=os.getenv("PASSWORD"),
-            security_token=os.getenv("SECURITY_TOKEN")
+            username=args.username,
+            password=args.password,
+            security_token=args.securityToken
         )
 
         agent_force = Agentforce(auth=auth)
@@ -43,13 +69,9 @@ async def send_message(name: str, message: str) -> str:
 
         print('Exception: ',e)
         return f"Unable to connect to {name} agent"
-    
-def main():
-    # Initialize and run the server
-    mcp.run(transport='stdio')
 
 if __name__ == "__main__":
-    main()
+    mcp.run(transport='stdio')
 
     
 

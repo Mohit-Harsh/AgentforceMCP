@@ -1,6 +1,4 @@
 agentforce-sdk
-fastapi[standard]
-fastapi
-httpx
 mcp
-python-dotenv
+fastmcp
+fastapi[standard]
