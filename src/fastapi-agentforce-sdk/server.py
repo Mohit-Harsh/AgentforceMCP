@@ -44,11 +44,8 @@ def send_message(req:RequestWrapper)->Response:
     except Exception as e:
 
         print('Exception: ',e)
-        if response.status_code == 401:
-            print("Authorization Error: Invalid username or password.")
-        elif response.status_code == 403:
-            print("Access Forbidden: You don’t have permission to access this resource.")
-        return Response(message="Unable to connect to the agent")
+        
+        return Response(message=f"Unable to connect to the agent: {str(e)}")
 
 
     

@@ -3,6 +3,10 @@ from fastapi import FastAPI, Header
 import requests
 import uuid
 from pydantic import BaseModel
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 
 app = FastAPI()
 
@@ -71,14 +75,16 @@ def deleteSession(session_id:str,token:str)->Any:
     return response.json()
 
 class RequestModel(BaseModel):
+    agentId: str
     message: str
 
 @app.post("/invokeAgent")
-def invokeAgent(req:RequestModel,
-                clientId: str=Header(...),
-                clientSecret: str=Header(...),
-                agentId: str=Header(...),
-                domainUrl: str=Header(...))->Any:
+def invokeAgent(req:RequestModel)->Any:
+
+    clientId: str=os.getenv(f"{req.agentId}_CLIENT_ID")
+    clientSecret: str=os.getenv(f"{req.agentId}_CLIENT_SECRET")
+    agentId: str= req.agentId
+    domainUrl: str=os.getenv(f"{req.agentId}_DOMAIN_URL")
 
     try:
 
