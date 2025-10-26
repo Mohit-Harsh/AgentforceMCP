@@ -130,4 +130,4 @@ def invokeAgent(req:RequestModel,agentId: str=Header(...),domainUrl: str=Header(
 mcp = FastMCP.from_fastapi(app=app, name="Agentforce MCP Server",auth=auth)
 
 if __name__ == "__main__":
-    mcp.run('streamable-http', port=8000)
+    mcp.run('streamable-http', host='0.0.0.0', port=8000)
