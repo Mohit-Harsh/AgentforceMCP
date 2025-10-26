@@ -38,7 +38,7 @@ auth = OAuthProxy(
     token_verifier=token_verifier,
 
     # Your FastMCP server's public URL
-    base_url="https://2stmqvtv-8000.inc1.devtunnels.ms",
+    base_url="https://agentforcemcpoauth.onrender.com",
 
     # Optional: customize the callback path (default is "/auth/callback")
     # redirect_path="/custom/callback",
