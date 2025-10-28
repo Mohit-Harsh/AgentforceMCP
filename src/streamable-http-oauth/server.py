@@ -8,40 +8,42 @@ import os
 from dotenv import load_dotenv
 from fastmcp.server.dependencies import get_access_token
 from fastmcp.server.auth import OAuthProxy
-from fastmcp.server.auth.providers.jwt import JWTVerifier
+from fastmcp.server.auth.providers.jwt import JWTVerifier,AccessToken
 
 load_dotenv()
 
 app = FastAPI(title="Agentforce MCP Server")
 
 
+class CustomTokenVerifier:
+
+    def __init__(self, jwks_uri: str, issuer: str, audience: str, required_scopes: list[str]):
+        self.jwks_uri = jwks_uri
+        self.issuer = issuer
+        self.audience = audience
+        self.required_scopes = required_scopes
+
+
+    async def verify_token(self, token):
+        return AccessToken(token=token,type='Bearer',client_id=os.getenv("CLIENT_ID"),scopes=self.required_scopes)
+    
+token_verifier = CustomTokenVerifier(
+    jwks_uri="https://login.salesforce.com/id/keys",
+    issuer="https://login.salesforce.com",
+    audience="3MVG9JJwBBbcN47IrefxgGiTNdY5a0b.ux1IQPul7xw51Q2SQtLGjxRgcoQb.EIO33e1wXNVG5LyIU5bG9fQU",
+    required_scopes=['api','refresh_token','chatbot_api','sfap_api','offline_access']
+)
+
 
 # Configure token verification for your provider
 # See the Token Verification guide for provider-specific setups
-token_verifier = JWTVerifier(
-    jwks_uri="https://login.salesforce.com/id/keys",
-    issuer="https://login.salesforce.com",
-    audience="3MVG9JJwBBbcN47IrefxgGiTNdY5a0b.ux1IQPul7xw51Q2SQtLGjxRgcoQb.EIO33e1wXNVG5LyIU5bG9fQU"
-)
-
-# Create the OAuth proxy
 auth = OAuthProxy(
-    # Provider's OAuth endpoints (from their documentation)
     upstream_authorization_endpoint="https://login.salesforce.com/services/oauth2/authorize",
     upstream_token_endpoint="https://login.salesforce.com/services/oauth2/token",
-
-    # Your registered app credentials
     upstream_client_id=os.getenv("CLIENT_ID"),
     upstream_client_secret=os.getenv("CLIENT_SECRET"),
-
-    # Token validation (see Token Verification guide)
-    token_verifier=token_verifier,
-
-    # Your FastMCP server's public URL
-    base_url="https://agentforcemcpoauth.onrender.com",
-
-    # Optional: customize the callback path (default is "/auth/callback")
-    # redirect_path="/custom/callback",
+    base_url="http://localhost:8000",
+    token_verifier=token_verifier
 )
 
 def createSession(agentId:str,token:str,domainUrl:str)->Any:
@@ -130,4 +132,4 @@ def invokeAgent(req:RequestModel,agentId: str=Header(...),domainUrl: str=Header(
 mcp = FastMCP.from_fastapi(app=app, name="Agentforce MCP Server",auth=auth)
 
 if __name__ == "__main__":
-    mcp.run('streamable-http', host='0.0.0.0', port=8000)
+    mcp.run('streamable-http', host='localhost', port=8000)
