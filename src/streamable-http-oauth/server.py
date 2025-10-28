@@ -12,6 +12,8 @@ from fastmcp.server.auth.providers.jwt import JWTVerifier,AccessToken
 
 load_dotenv()
 
+print(os.getenv("CLIENT_ID"),os.getenv("CLIENT_SECRET"))
+
 app = FastAPI(title="Agentforce MCP Server")
 
 
@@ -31,7 +33,7 @@ token_verifier = CustomTokenVerifier(
     jwks_uri="https://login.salesforce.com/id/keys",
     issuer="https://login.salesforce.com",
     audience=os.getenv("CLIENT_ID"),
-    required_scopes=['api','refresh_token','chatbot_api','sfap_api','offline_access']
+    required_scopes=['refresh_token','api','chatbot_api','sfap_api','offline_access']
 )
 
 
@@ -42,7 +44,7 @@ auth = OAuthProxy(
     upstream_token_endpoint="https://login.salesforce.com/services/oauth2/token",
     upstream_client_id=os.getenv("CLIENT_ID"),
     upstream_client_secret=os.getenv("CLIENT_SECRET"),
-    base_url="https://agentforcemcpoauth.onrender.com",
+    base_url="http://localhost:8000",
     token_verifier=token_verifier
 )
 
@@ -70,6 +72,7 @@ def createSession(agentId:str,token:str,domainUrl:str)->Any:
 
     if(response.status_code != 200):
         
+        print('Error creating session:', response)
         raise Exception(f"Failed to create session: {response.text}")
 
     return response.json()
@@ -95,8 +98,11 @@ def invokeAgent(req:RequestModel,agentId: str=Header(...),domainUrl: str=Header(
 
     try:
 
+        accessToken = get_access_token()
              
-        token = get_access_token()
+        token = accessToken.token
+
+        print('Token:', token)
 
         session = createSession(agentId, token, domainUrl)
 
@@ -132,4 +138,4 @@ def invokeAgent(req:RequestModel,agentId: str=Header(...),domainUrl: str=Header(
 mcp = FastMCP.from_fastapi(app=app, name="Agentforce MCP Server",auth=auth)
 
 if __name__ == "__main__":
-    mcp.run('streamable-http', host='0.0.0.0', port=8000)
+    mcp.run('streamable-http', host='localhost', port=8000)
