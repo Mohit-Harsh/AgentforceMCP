@@ -30,7 +30,7 @@ class CustomTokenVerifier:
 token_verifier = CustomTokenVerifier(
     jwks_uri="https://login.salesforce.com/id/keys",
     issuer="https://login.salesforce.com",
-    audience="3MVG9JJwBBbcN47IrefxgGiTNdY5a0b.ux1IQPul7xw51Q2SQtLGjxRgcoQb.EIO33e1wXNVG5LyIU5bG9fQU",
+    audience=os.getenv("CLIENT_ID"),
     required_scopes=['api','refresh_token','chatbot_api','sfap_api','offline_access']
 )
 
@@ -42,7 +42,7 @@ auth = OAuthProxy(
     upstream_token_endpoint="https://login.salesforce.com/services/oauth2/token",
     upstream_client_id=os.getenv("CLIENT_ID"),
     upstream_client_secret=os.getenv("CLIENT_SECRET"),
-    base_url="http://localhost:8000",
+    base_url="https://agentforcemcpoauth.onrender.com",
     token_verifier=token_verifier
 )
 
@@ -132,4 +132,4 @@ def invokeAgent(req:RequestModel,agentId: str=Header(...),domainUrl: str=Header(
 mcp = FastMCP.from_fastapi(app=app, name="Agentforce MCP Server",auth=auth)
 
 if __name__ == "__main__":
-    mcp.run('streamable-http', host='localhost', port=8000)
+    mcp.run('streamable-http', host='0.0.0.0', port=8000)
