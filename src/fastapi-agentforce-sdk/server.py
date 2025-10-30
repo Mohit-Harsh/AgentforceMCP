@@ -24,12 +24,19 @@ class Response(BaseModel):
 def send_message(req:RequestWrapper)->Response:
     
     try:
-        
+
+        username = os.getenv('_'.join([req.agentName,'USERNAME']))
+        password = os.getenv('_'.join([req.agentName,'PASSWORD']))
+        security_token = os.getenv('_'.join([req.agentName,'SECURITY_TOKEN']))
+
+        if username is None or password is None or security_token is None:
+            return Response(message="Agent credentials are not properly configured.", session_id=None)
+
         # Initialize AgentForce client
         auth = BasicAuth(
-            username=os.getenv('UNAME'),
-            password=os.getenv('PASSWORD'),
-            security_token=os.getenv('SECURITY_TOKEN')
+            username=username,
+            password=password,
+            security_token=security_token
         )
 
         agent_force = Agentforce(auth=auth)
