@@ -1,3 +1,5 @@
 .vscode
 venv
 .env
+src/fastapi-agent-api/__pycache__
+src/fastapi-agentforce-sdk/__pycache__
