@@ -1,7 +1,3 @@
-Here’s a polished, professional **GitHub README** suitable for your project:
-
----
-
 # 🧩 Agentforce MCP Integration Server
 
 This repository provides a unified solution for integrating **Model Context Protocol (MCP)** clients and **REST API** applications with **Agentforce Agents** using the **Agentforce Python SDK**.
