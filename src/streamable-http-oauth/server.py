@@ -12,8 +12,6 @@ from fastmcp.server.auth.providers.jwt import JWTVerifier,AccessToken
 
 load_dotenv()
 
-print(os.getenv("CLIENT_ID"),os.getenv("CLIENT_SECRET"))
-
 app = FastAPI(title="Agentforce MCP Server")
 
 
@@ -96,13 +94,13 @@ class RequestModel(BaseModel):
 @app.post("/invokeAgent")
 def invokeAgent(req:RequestModel,agentId: str=Header(...),domainUrl: str=Header(...))->Any:
 
+    """Use this tool to Converse with an Agentforce Agent by providing its agentId and domainUrl of the salesforce org in the header."""
+
     try:
 
         accessToken = get_access_token()
              
         token = accessToken.token
-
-        print('Token:', token)
 
         session = createSession(agentId, token, domainUrl)
 
@@ -136,6 +134,7 @@ def invokeAgent(req:RequestModel,agentId: str=Header(...),domainUrl: str=Header(
         return f"Unable to connect to the agent: {str(e)}"
 
 mcp = FastMCP.from_fastapi(app=app, name="Agentforce MCP Server",auth=auth)
+
 
 if __name__ == "__main__":
     mcp.run('streamable-http', host='localhost', port=8000)

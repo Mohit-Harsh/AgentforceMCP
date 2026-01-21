@@ -13,22 +13,10 @@ from fastapi.responses import RedirectResponse
 import jwt
 import sqlite3
 import json
-import argparse
-
 
 load_dotenv()
 
-
-parser = argparse.ArgumentParser()
-
-parser.add_argument("--agentId", help="agentforce agent id",
-                    action="store_true")
-
-parser.add_argument("--domainUrl", help="salesforce org domain url",
-                    action="store_true")
-
-args = parser.parse_args()
-
+app = FastAPI(title="Agentforce MCP Server")
 
 class CustomTokenVerifier:
 
@@ -167,8 +155,6 @@ def sendMessage(session_id:str, token:str, message:str)->str:
 
     return response
 
-mcp = FastMCP(name="Agentforce MCP Server",auth=auth)
-
 # Context state is scoped to a single MCP request. 
 # Each operation (tool call, resource read, list operation, etc.) receives a new context object. 
 # State set during one request will not be available in subsequent requests. 
@@ -177,8 +163,8 @@ mcp = FastMCP(name="Agentforce MCP Server",auth=auth)
 class RequestModel(BaseModel):
     message: str
 
-@mcp.tool(name="invokeAgent")
-def invokeAgent(req:RequestModel,agentId:str=args.agentId,domainUrl:str=args.domainUrl)->Any:
+@app.post("/invokeAgent")
+def invokeAgent(req:RequestModel,agentId: str=Header(...),domainUrl: str=Header(...))->Any:
 
     """Use this tool to Converse with an Agentforce Agent by providing its agentId and domainUrl of the salesforce org in the header."""
 
@@ -229,6 +215,8 @@ def invokeAgent(req:RequestModel,agentId:str=args.agentId,domainUrl:str=args.dom
         print('Error invoking agent:', e)
         return f"Unable to connect to the agent: {str(e)}"
 
+mcp = FastMCP.from_fastapi(name="Agentforce MCP Server",auth=auth,app=app)
+
 @mcp.custom_route(methods=['GET'],path="/.well-known/oauth-protected-resource")
 def oauth_protected_resource(params):
 
@@ -241,4 +229,4 @@ def openid_config(params):
 
 
 if __name__ == "__main__":
-    mcp.run('stdio', host='localhost', port=8000)
+    mcp.run('streamable-http', host='localhost', port=8000)

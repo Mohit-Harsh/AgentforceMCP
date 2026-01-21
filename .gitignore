@@ -3,3 +3,5 @@ venv
 .env
 src/fastapi-agent-api/__pycache__
 src/fastapi-agentforce-sdk/__pycache__
+session.db
+session.db-journal
