@@ -2,3 +2,4 @@ agentforce-sdk
 mcp
 fastmcp
 fastapi[standard]
+sqlite3
